@@ -8,6 +8,8 @@ ausgewertet. Es gibt keinen Cloud-Dienst, keinen Upload, kein Konto und keine
 gespeicherten Bilder. Der einzige Netzwerkweg ist optional und bleibt im eigenen
 WLAN: die selbst eingetragene Adresse einer Netzwerk-Kamera (siehe unten).
 
+![Hauptfenster von Gesture TimeTrack](docs/screenshots/hauptfenster.png)
+
 ---
 
 ## Gesten-Vokabular

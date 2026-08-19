@@ -17,7 +17,8 @@
     "test": "node --test \"src/**/*.test.ts\"",
     "test:rust": "cargo test --manifest-path src-tauri/Cargo.toml",
     "version:set": "node scripts/set-version.mjs",
-    "repo:set": "node scripts/set-repo.mjs"
+    "repo:set": "node scripts/set-repo.mjs",
+    "shot": "node scripts/screenshot.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.0.1",
