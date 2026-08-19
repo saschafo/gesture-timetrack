@@ -73,7 +73,8 @@ pub fn start_network_camera(app: &AppHandle) {
     let Some(url) = configured_camera_url(app) else {
         return;
     };
-    app.state::<NetworkCamera>().ensure_started(url);
+    let lang = crate::i18n::lang(&app.state::<Db>());
+    app.state::<NetworkCamera>().ensure_started(url, lang);
 }
 
 /// Adresse der Netzwerk-Kamera, falls sie als Quelle eingestellt ist.

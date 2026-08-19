@@ -15,6 +15,8 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
+use crate::i18n::{self, Lang};
+
 /// Verbindungsaufbau darf nicht hängen bleiben - im WLAN ist eine tote Adresse
 /// der Normalfall (Handy aus, App nicht gestartet).
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(3);
@@ -53,7 +55,12 @@ pub struct NetworkCamera {
 
 impl NetworkCamera {
     /// Startet den Abruf. Ein bereits laufender Abruf wird vorher beendet.
-    pub fn start(&self, url: String) {
+    ///
+    /// Die Sprache wird mitgegeben statt aus dem Prozesszustand gelesen: Der
+    /// Abruf läuft in einem eigenen Faden, und seine Meldungen sollen der
+    /// Sprache folgen, die beim Start galt - nicht einer, die sich zwischendurch
+    /// ändert. Nebenbei werden die Tests dadurch unabhängig voneinander.
+    pub fn start(&self, url: String, lang: Lang) {
         self.stop();
 
         self.running.store(true, Ordering::SeqCst);
@@ -65,7 +72,7 @@ impl NetworkCamera {
         std::thread::spawn(move || {
             let mut error_pause = ERROR_PAUSE_START;
             while running.load(Ordering::SeqCst) {
-                let pause = match pump(&url, &running, &latest) {
+                let pause = match pump(&url, &running, &latest, lang) {
                     Ok(()) => {
                         *error.lock().expect("Kamera-Mutex") = None;
                         error_pause = ERROR_PAUSE_START;
@@ -88,11 +95,11 @@ impl NetworkCamera {
 
     /// Startet nur, wenn noch nichts läuft - eine bestehende Verbindung wird
     /// nicht unnötig abgerissen.
-    pub fn ensure_started(&self, url: String) {
+    pub fn ensure_started(&self, url: String, lang: Lang) {
         if self.running.load(Ordering::SeqCst) {
             return;
         }
-        self.start(url);
+        self.start(url, lang);
     }
 
     /// Merkt vor, dass die Verbindung über das Overlay hinaus gebraucht wird.
@@ -132,9 +139,14 @@ impl NetworkCamera {
 /// Deckt beide gängigen Fälle ab: einen fortlaufenden MJPEG-Stream (`/video`)
 /// und eine Adresse, die pro Aufruf ein Einzelbild liefert (`/shot.jpg`) - dort
 /// endet der Stream nach einem Bild und die Schleife baut neu auf.
-fn pump(url: &str, running: &AtomicBool, latest: &Mutex<Option<Vec<u8>>>) -> Result<(), String> {
-    let mut response = connect(url)?;
-    check_content_type(content_type(&response).as_deref())?;
+fn pump(
+    url: &str,
+    running: &AtomicBool,
+    latest: &Mutex<Option<Vec<u8>>>,
+    lang: Lang,
+) -> Result<(), String> {
+    let mut response = connect(url, lang)?;
+    check_content_type(content_type(&response).as_deref(), lang)?;
 
     let mut reader = response.body_mut().as_reader();
     let mut buffer: Vec<u8> = Vec::with_capacity(READ_CHUNK * 4);
@@ -143,7 +155,7 @@ fn pump(url: &str, running: &AtomicBool, latest: &Mutex<Option<Vec<u8>>>) -> Res
     while running.load(Ordering::SeqCst) {
         let read = reader
             .read(&mut chunk)
-            .map_err(|error| crate::i18n::msg_error("camera.aborted", error))?;
+            .map_err(|error| i18n::ta(lang, "camera.aborted", &[("error", &error.to_string())]))?;
         if read == 0 {
             // Einzelbild-Adresse: Stream zu Ende, Rest des Puffers auswerten.
             if let Some(frame) = next_jpeg(&mut buffer) {
@@ -163,7 +175,7 @@ fn pump(url: &str, running: &AtomicBool, latest: &Mutex<Option<Vec<u8>>>) -> Res
     Ok(())
 }
 
-fn connect(url: &str) -> Result<ureq::http::Response<ureq::Body>, String> {
+fn connect(url: &str, lang: Lang) -> Result<ureq::http::Response<ureq::Body>, String> {
     let agent = ureq::Agent::config_builder()
         .timeout_connect(Some(CONNECT_TIMEOUT))
         .timeout_recv_body(Some(BODY_TIMEOUT))
@@ -173,7 +185,7 @@ fn connect(url: &str) -> Result<ureq::http::Response<ureq::Body>, String> {
     agent
         .get(url)
         .call()
-        .map_err(|error| crate::i18n::msg_error("camera.unreachable", error))
+        .map_err(|error| i18n::ta(lang, "camera.unreachable", &[("error", &error.to_string())]))
 }
 
 fn content_type(response: &ureq::http::Response<ureq::Body>) -> Option<String> {
@@ -190,26 +202,21 @@ fn content_type(response: &ureq::http::Response<ureq::Body>) -> Option<String> {
 /// Stream-Adresse mit ihrer eigenen Bedienseite, sobald der Stream schon von
 /// einem anderen Programm belegt ist. Ohne diese Prüfung würde die Erkennung
 /// stumm ins Leere laufen - genau die schwarze Vorschau ohne Erklärung.
-fn check_content_type(content_type: Option<&str>) -> Result<(), String> {
+fn check_content_type(content_type: Option<&str>, lang: Lang) -> Result<(), String> {
     match content_type {
         Some(value) if value.contains("multipart/") || value.starts_with("image/") => Ok(()),
-        Some(value) if value.contains("text/html") => {
-            Err(crate::i18n::msg("camera.html_response"))
-        }
-        Some(value) => Err(crate::i18n::msg_args(
-            "camera.wrong_type",
-            &[("type".into(), value.to_string())],
-        )),
+        Some(value) if value.contains("text/html") => Err(i18n::t(lang, "camera.html_response")),
+        Some(value) => Err(i18n::ta(lang, "camera.wrong_type", &[("type", value)])),
         None => Ok(()),
     }
 }
 
 /// Einmaliger Verbindungstest für die Einstellungen: verbinden, ein Bild holen,
 /// Klartext zurückgeben.
-pub fn probe(url: &str) -> Result<String, String> {
-    let mut response = connect(url)?;
+pub fn probe(url: &str, lang: Lang) -> Result<String, String> {
+    let mut response = connect(url, lang)?;
     let content_type = content_type(&response);
-    check_content_type(content_type.as_deref())?;
+    check_content_type(content_type.as_deref(), lang)?;
 
     let mut reader = response.body_mut().as_reader();
     let mut buffer: Vec<u8> = Vec::with_capacity(READ_CHUNK * 4);
@@ -219,37 +226,39 @@ pub fn probe(url: &str) -> Result<String, String> {
     while Instant::now() < deadline {
         let read = reader
             .read(&mut chunk)
-            .map_err(|error| crate::i18n::msg_error("camera.probe_aborted", error))?;
+            .map_err(|error| {
+                i18n::ta(lang, "camera.probe_aborted", &[("error", &error.to_string())])
+            })?;
         buffer.extend_from_slice(&chunk[..read]);
 
         if let Some(frame) = next_jpeg(&mut buffer) {
             let size = match jpeg_dimensions(&frame) {
-                Some((width, height)) => crate::i18n::msg_args(
+                Some((width, height)) => i18n::ta(
+                    lang,
                     "camera.pixels",
-                    &[
-                        ("width".into(), width.to_string()),
-                        ("height".into(), height.to_string()),
-                    ],
+                    &[("width", &width.to_string()), ("height", &height.to_string())],
                 ),
                 None => format!("{} KB", frame.len() / 1024),
             };
-            let kind = crate::i18n::msg(
+            let kind = i18n::t(
+                lang,
                 if content_type.as_deref().is_some_and(|value| value.contains("multipart/")) {
                     "camera.kind_stream"
                 } else {
                     "camera.kind_still"
                 },
             );
-            return Ok(crate::i18n::msg_args(
+            return Ok(i18n::ta(
+                lang,
                 "camera.probe_ok",
-                &[("kind".into(), kind), ("size".into(), size)],
+                &[("kind", &kind), ("size", &size)],
             ));
         }
         if read == 0 {
             break;
         }
     }
-    Err(crate::i18n::msg("camera.no_frame"))
+    Err(i18n::t(lang, "camera.no_frame"))
 }
 
 /// Liest Breite und Höhe aus dem SOF-Segment eines JPEG.
@@ -345,15 +354,18 @@ mod tests {
 
     #[test]
     fn erkennt_eine_webseite_als_falsche_antwort() {
-        crate::i18n::set_current(crate::i18n::Lang::De);
-        let error = check_content_type(Some("text/html; charset=utf-8")).unwrap_err();
+        let error = check_content_type(Some("text/html; charset=utf-8"), Lang::De).unwrap_err();
         assert!(error.contains("Webseite"), "{error}");
         assert!(error.contains("belegt"), "Hinweis auf belegten Stream fehlt: {error}");
 
-        assert!(check_content_type(Some("multipart/x-mixed-replace;boundary=--dcmjpeg")).is_ok());
-        assert!(check_content_type(Some("image/jpeg")).is_ok());
-        assert!(check_content_type(None).is_ok(), "ohne Angabe einfach versuchen");
-        assert!(check_content_type(Some("application/json")).is_err());
+        assert!(check_content_type(Some("multipart/x-mixed-replace;boundary=--dcmjpeg"), Lang::De).is_ok());
+        assert!(check_content_type(Some("image/jpeg"), Lang::De).is_ok());
+        assert!(check_content_type(None, Lang::De).is_ok(), "ohne Angabe einfach versuchen");
+        assert!(check_content_type(Some("application/json"), Lang::De).is_err());
+
+        // Englisch muss dieselbe Entscheidung treffen, nur anders formuliert.
+        let english = check_content_type(Some("text/html"), Lang::En).unwrap_err();
+        assert!(english.contains("web page"), "{english}");
     }
 
     #[test]
@@ -407,7 +419,7 @@ mod tests {
     #[test]
     fn holt_einzelbilder_von_einer_netzwerk_kamera() {
         let camera = NetworkCamera::default();
-        camera.start(serve_mjpeg(2));
+        camera.start(serve_mjpeg(2), Lang::De);
 
         let mut frame = None;
         for _ in 0..100 {
@@ -437,7 +449,7 @@ mod tests {
     #[ignore = "braucht eine erreichbare Kamera im Netz"]
     fn echte_kamera() {
         let url = std::env::var("KAMERA_URL").expect("KAMERA_URL setzen");
-        match probe(&url) {
+        match probe(&url, Lang::De) {
             Ok(info) => println!("OK: {info}"),
             Err(error) => panic!("{error}"),
         }
@@ -447,7 +459,7 @@ mod tests {
     fn meldet_eine_tote_adresse_als_fehler() {
         let camera = NetworkCamera::default();
         // Port ohne Server: die Verbindung schlägt sofort fehl.
-        camera.start("http://127.0.0.1:1/video".to_string());
+        camera.start("http://127.0.0.1:1/video".to_string(), Lang::De);
 
         let mut error = None;
         for _ in 0..100 {

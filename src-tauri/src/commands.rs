@@ -876,7 +876,7 @@ pub fn test_camera_url(url: String) -> AppResult<String> {
     if url.trim().is_empty() {
         return Err(AppError::key("camera.url_missing"));
     }
-    crate::camera::probe(url.trim()).map_err(AppError::msg)
+    crate::camera::probe(url.trim(), i18n::current()).map_err(AppError::msg)
 }
 
 /// Hält die Netzwerk-Kamera für die Vorschau im Hauptfenster offen.
