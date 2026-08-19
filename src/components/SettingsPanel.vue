@@ -77,6 +77,7 @@ const updateState = ref<'idle' | 'checking' | 'available' | 'installing' | 'curr
   'idle',
 )
 const updateText = ref('')
+const updateNotes = ref('')
 const updatePercent = ref(0)
 /** Laufende Version - für die Meldung „ist aktuell". */
 const version = ref('')
@@ -92,6 +93,7 @@ async function lookForUpdate() {
     if (found) {
       updateState.value = 'available'
       updateText.value = t('update.available', { version: found.version })
+      updateNotes.value = found.notes?.trim() || ''
     } else {
       updateState.value = 'current'
       updateText.value = t('update.current', { version: version.value })
@@ -323,6 +325,8 @@ async function setHotkey(shortcut: string) {
       <p v-if="updateText" :class="updateState === 'failed' ? 'warn' : 'note'">
         {{ updateText }}
       </p>
+      <!-- Was in der neuen Fassung steckt - direkt aus dem Release. -->
+      <pre v-if="updateNotes" class="notes">{{ updateNotes }}</pre>
       <p class="note">{{ t('update.note') }}</p>
     </div>
   </CollapsibleCard>
@@ -404,6 +408,20 @@ input.recording {
 .test .warn {
   color: var(--warning);
   margin: 0;
+}
+
+.notes {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  max-height: 140px;
+  overflow: auto;
 }
 
 .test button,

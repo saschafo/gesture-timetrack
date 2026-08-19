@@ -84,6 +84,14 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'Gesture TimeTrack ${{ github.ref_name }}'
+          # Dieser Text erscheint auch in der Anwendung, wenn sie ein Update
+          # anbietet - deshalb kein leeres Feld hinterlassen.
+          releaseBody: |
+            Installation: `.dmg` für macOS (Apple Silicon und Intel),
+            `.msi` oder `-setup.exe` für Windows.
+
+            Bestehende Installationen finden dieses Update über
+            *Einstellungen → Aktualisierung → Nach Updates suchen*.
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
