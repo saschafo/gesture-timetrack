@@ -1,260 +1,178 @@
 # Gesture TimeTrack
 
-Zeiterfassung per Handgeste – der Software-Ersatz für einen Hardware-Buzzer.
-Hotkey drücken, Geste in die Kamera halten, weiterarbeiten.
+*[Deutsche Fassung](README.de.md)*
 
-**100 % offline.** Die Kamerabilder werden ausschließlich auf dem Gerät
-ausgewertet. Es gibt keinen Cloud-Dienst, keinen Upload, kein Konto und keine
-gespeicherten Bilder. Der einzige Netzwerkweg ist optional und bleibt im eigenen
-WLAN: die selbst eingetragene Adresse einer Netzwerk-Kamera (siehe unten).
+Project time tracking by hand gesture – a software replacement for a hardware
+time-tracking buzzer. Press the hotkey, hold a gesture up to the camera, keep
+working.
 
-![Hauptfenster von Gesture TimeTrack](docs/screenshots/hauptfenster.png)
+**Fully offline.** Camera frames are processed on your device only. No cloud
+service, no upload, no account, no stored images. The one optional network path
+stays on your own Wi-Fi: a phone used as a camera (see below).
+
+![Gesture TimeTrack main window](docs/screenshots/hauptfenster.png)
 
 ---
 
-## Gesten-Vokabular
+## The gestures
 
-| Geste | Bedeutung |
+| Gesture | Meaning |
 |---|---|
-| 🖐️ Offene Hand | **Start** – und **Weiter** aus einer Pause |
-| ✊ Faust | **Stopp** – Eintrag wird gebucht |
-| 👍 Daumen hoch | **Pause** |
-| ☝️ Ein Finger | Projekt-**Slot 1** starten |
-| ✌️ Zwei Finger | Projekt-**Slot 2** starten |
+| 🖐️ Open hand | **Start** – and **resume** from a break |
+| ✊ Fist | **Stop** – the entry is recorded |
+| 👍 Thumbs up | **Pause** |
+| ☝️ One finger | Start project **slot 1** |
+| ✌️ Two fingers | Start project **slot 2** |
 
-Fünf Gesten, kein eigenes „Weiter": Die offene Hand setzt eine Pause fort. Eine
-Geste weniger zu merken, eine Verwechslungsmöglichkeit weniger.
+Five gestures, no separate “resume”: the open hand does it. One gesture less to
+remember, one less way to confuse them.
 
-Eine Slot-Geste **startet** die Erfassung – aus jedem Zustand heraus. Läuft
-gerade ein anderes Projekt (oder ist es pausiert), schließt die App dessen
-Eintrag mit seiner Nettozeit ab und beginnt sofort den neuen; eine Pause
-desselben Projekts wird fortgesetzt. Per Maus geht
-das genauso: in der Projektliste heißt der Knopf dann *Wechseln*. Die offene
-Hand setzt eine pausierte Erfassung fort, statt einen Fehler zu melden.
+A slot gesture **starts** tracking from any state. If another project is running
+(or paused), its entry is closed with its net time and the new one begins right
+away; a break on the same project is resumed. The same works by mouse – the
+button in the project list then reads *Switch*.
 
-## Ablauf einer Buchung
+## How a booking works
 
-1. **Hotkey** (Standard `Strg/Cmd + Alt + Leertaste`) – das Kamera-Overlay
-   erscheint oben rechts, ohne den Fokus des Arbeitsfensters zu stehlen. Bei
-   mehreren Bildschirmen auf dem, auf dem der Mauszeiger steht.
-2. Die Kamera läuft für die eingestellte Zeitspanne (Standard 3 s).
-3. Eine Geste zählt erst, wenn sie **drei Frames in Folge** über der
-   Konfidenz-Schwelle (Standard 85 %) liegt.
-4. Rückmeldung im Overlay: grüner Rahmen = übernommen, roter Rahmen = nicht
-   erkannt. Optional ein kurzer Ton.
-5. Overlay schließt sich, Kamera aus. Bei Unsicherheit wird **nichts** gebucht –
-   es gibt bewusst keinen Fallback auf „irgendeine“ Aktion.
+1. **Hotkey** (default `Ctrl/Cmd + Alt + Space`) – the camera overlay appears in
+   the top right corner without stealing focus from your work window. With
+   several displays it appears on the one your mouse is on.
+2. The camera runs for the configured window (3 seconds by default).
+3. A gesture counts only once it stays above the confidence threshold (85 % by
+   default) for **three consecutive frames**.
+4. Feedback in the overlay: a green frame means accepted, a red one means not
+   recognised. Optionally a short sound.
+5. Overlay closes, camera off. When in doubt **nothing** is recorded – there is
+   deliberately no fallback to “some” action.
 
-`Esc` bricht das Erkennungsfenster jederzeit ab.
+`Esc` cancels the recognition window at any time.
 
-## Optional: Handy als Kamera
+## Optional: your phone as the camera
 
-Wer keine brauchbare eingebaute Webcam hat, kann eine **Netzwerk-Kamera im
-eigenen WLAN** verwenden – etwa ein Handy mit einer beliebigen Kamera-App
-(DroidCam, IP Webcam o. ä.; keine bestimmte App wird vorausgesetzt oder
-mitgeliefert).
+If your built-in webcam is not up to the job, you can use a **network camera on
+your own Wi-Fi** – for instance a phone running any camera app (DroidCam, IP
+Webcam, …; no particular app is required or bundled).
 
-*Einstellungen → Kamera → Netzwerk-Kamera im WLAN*, dann die Stream-Adresse
-eintragen, z. B. `http://192.168.1.20:4747/video`, und **Verbindung testen**
-drücken – der Test sagt im Klartext, ob ein Stream ankommt und in welcher
-Auflösung. Unterstützt werden fortlaufende MJPEG-Streams und Adressen, die pro
-Aufruf ein Einzelbild liefern (`…/shot.jpg`).
+*Settings → Camera → Network camera*, then enter the stream address, e.g.
+`http://192.168.1.20:4747/video`, and press **Test connection** – the test tells
+you in plain words whether a stream arrives and at what resolution. Continuous
+MJPEG streams and single-frame addresses (`…/shot.jpg`) both work.
 
-* Der Stream bleibt im lokalen Netz: Die App holt die Bilder direkt von der
-  eingetragenen Adresse und wertet sie auf dem Gerät aus. Keine Cloud.
-* Verbunden wird **nur** während des Erkennungsfensters, nie im Hintergrund.
-* Das Erkennungsfenster ist hier standardmäßig **4 Sekunden** statt 3, weil
-  MJPEG über WLAN spürbar später ankommt. Die Zeit läuft erst ab dem ersten
-  Bild; beide Werte stehen als Einstellung in der Datenbank.
-* Der Standardweg bleibt unangetastet: ohne diese Option kommt die App ohne
-  Netzwerk aus.
+* The stream stays on your local network: the app fetches frames straight from
+  the address you entered and evaluates them on this device. No cloud.
+* It connects **only** while the recognition window is open, never in the
+  background.
+* The recognition window defaults to **4 seconds** here instead of 3, because
+  MJPEG over Wi-Fi arrives noticeably later. The clock starts with the first
+  frame; both values are settings.
+* The default path is untouched: without this option the app needs no network at
+  all.
 
-Zu beachten: Viele Kamera-Apps bedienen nur **einen** Stream-Client. Läuft
-parallel ein Browser-Tab, OBS oder der Desktop-Client derselben App, antwortet
-die Kamera der App mit ihrer Bedienseite statt mit Bildern – dann meldet
-Gesture TimeTrack genau das, statt eine schwarze Vorschau zu zeigen.
+Worth knowing: many camera apps serve only **one** stream client. If a browser
+tab, OBS or a desktop camera app is already connected, the camera answers with
+its own web page instead of images – Gesture TimeTrack says exactly that instead
+of showing a black preview.
 
-## Installation & Entwicklung
+## Training your own gestures
 
-Voraussetzungen: Node ≥ 20, Rust ≥ 1.88, die
-[Tauri-Systemabhängigkeiten](https://tauri.app/start/prerequisites/).
+If a gesture is not recognised reliably with your hand, you can **train** it:
+*Camera preview → Start preview →* then *Record* per gesture. After a countdown
+you hold the gesture still for about 1.5 seconds and the app stores roughly
+20–40 measurements. Once all five gestures are recorded you can switch on *Use
+my training*.
 
-```bash
-npm install          # lädt zusätzlich Modell + WASM-Laufzeit nach public/
-npm run tauri:dev    # Entwicklung
-npm run tauri:build  # Installer bauen
-```
+How it works: **no images are stored**, only ten proportions of your hand pose
+(how straight each finger is, thumb position, distances between fingertips) –
+all dimensionless, so independent of hand size and camera distance. Recognition
+then uses the nearest neighbour in that feature space. No neural network, no
+training run, no extra model file – and every decision can be traced back to one
+concrete recording.
 
-`npm install` holt einmalig das MediaPipe-Handmodell (~7,5 MB) und die
-WASM-Laufzeit in `public/`. Das ist der **einzige** Netzwerkzugriff des gesamten
-Projekts, und er passiert zur Bauzeit, nicht zur Laufzeit. Beides liegt danach
-im Bundle; die fertige App lädt nichts nach. Erneut auslösen:
-`npm run assets`.
+Beyond the five base gestures you can add **custom** ones: give it a name, pick
+an action (start, stop, pause, resume, slot 1/2 or *start a specific project*),
+record it. Custom gestures apply **only** when none of the base gestures was
+recognised confidently, so “Stop” can never be overridden by accident.
 
-## Kamera-Vorschau im Hauptfenster
+## Reports and export
 
-*Kamera-Vorschau* zeigt live, was die Erkennung sieht: das Bild, die erkannten
-Handpunkte, die aktuell erkannte Geste und ihren Konfidenzwert samt Schwelle.
-Gedacht zum Ausrichten der Kamera und zum Nachjustieren der Schwelle – **es wird
-dabei nichts gebucht**.
-
-Die Vorschau läuft nur auf Knopfdruck und schaltet die Kamera ab, sobald sie
-beendet oder die Karte eingeklappt wird.
-
-## Gesten einlernen
-
-Wird eine Geste bei deiner Hand nicht zuverlässig erkannt, kannst du sie
-**einlernen**: *Kamera-Vorschau → Vorschau starten →* pro Geste *Aufnehmen*.
-Nach einem Countdown hältst du die Geste rund 1,5 Sekunden ruhig; die App
-speichert daraus etwa 20–40 Messungen. Sind alle sechs Gesten aufgenommen, lässt
-sich *Eigenes Training verwenden* einschalten.
-
-Wie das funktioniert: Gespeichert werden **keine Bilder**, sondern zehn
-Maßverhältnisse der Handhaltung (Streckung je Finger, Daumenlage, Abstände der
-Fingerspitzen) – alles dimensionslos, also unabhängig von Handgröße und
-Kameraabstand. Erkannt wird danach über den nächsten Nachbarn im Merkmalsraum:
-die Haltung wird der Geste zugeordnet, deren Aufnahme ihr am nächsten liegt. Kein
-neuronales Netz, kein Trainingslauf, keine zusätzliche Modelldatei – und jede
-Entscheidung bleibt auf eine konkrete Aufnahme zurückführbar.
-
-Ohne eingeschaltetes Training gelten die festen geometrischen Regeln. Dorthin
-fällt die App auch selbsttätig zurück, wenn Aufnahmen gelöscht wurden oder zu
-einem älteren Merkmalssatz gehören – die Erkennung wird also nie stillschweigend
-schlechter. Welche Art gerade greift, zeigt die Vorschau an („feste Regeln" bzw.
-„eigenes Training").
-
-## Eigene Gesten
-
-Zusätzlich zu den sechs Grundgesten lassen sich **eigene** anlegen: Name
-vergeben, Aktion wählen (Start, Stopp, Pause, Weiter, Slot 1/2 oder *ein
-bestimmtes Projekt starten*), aufnehmen – fertig. Eine eigene Geste je Projekt
-ist damit möglich, ohne den Umweg über die Slots.
-
-Eigene Gesten greifen **nachrangig**: erkennt der Regelweg eine Grundgeste
-sicher, gewinnt diese. „Stopp“ lässt sich also nicht versehentlich
-überschreiben. Sie funktionieren auch ohne vollständig eingelerntes Training –
-dann im Mischbetrieb, den die Vorschau als „Regeln + eigene Gesten“ anzeigt.
-Halte sie deutlich anders als die Grundgesten, sonst bleibt sie unerreichbar.
-
-## Bedienung ohne Geste
-
-**Klick auf das Symbol in der Menüleiste** öffnet ein kleines Fenster direkt
-darunter: laufende Zeit, Start/Pause/Weiter/Stopp und die Projektliste zum
-Wechseln mit einem Klick. Es schließt sich wieder, sobald es den Fokus verliert –
-wie ein Menü. Rechtsklick öffnet weiterhin das klassische Menü, ein Klick auf das
-Pfeilsymbol im kleinen Fenster das Hauptfenster.
-
-Alles geht auch per Maus: Hauptfenster für Projekte, Slots, Auswertung und
-Einstellungen; Tray-Menü für Start/Stopp/Pause, Projektwechsel und den
-aktuellen Stand. In der Menüleiste laufen Projektname und Zeit sekundengenau
-mit (`Kunde Meier · 01:01:01`, pausiert mit `‖`); über *Projekt starten* bzw.
-*Projekt wechseln* im Tray-Menü lässt sich jedes aktive Projekt direkt
-auswählen.
-Der Hotkey ist frei belegbar (Feld anklicken, Kombination drücken; Funktionstasten
-wie `F13` gehen auch allein). Reagiert er nicht, hat ihn das System reserviert –
-auf macOS ist `⌘⌥Leertaste` z. B. die Finder-Suche. Kommt ein Tastendruck an,
-bestätigt das Feld das kurz mit „ausgelöst“. Die App
-läuft nach dem Schließen des Fensters im Tray weiter, damit der Hotkey
-erreichbar bleibt.
-
-## Daten & Export
-
-Alle Daten liegen in einer SQLite-Datei im App-Data-Verzeichnis des Nutzers
+All data lives in a single SQLite file in your user’s app data directory
 (macOS: `~/Library/Application Support/de.swd.gesture-timetrack/`).
 
-Einträge lassen sich in der Auswertung **bearbeiten und löschen** (Dialogfenster),
-und über *Eintrag nachtragen* auch von Hand anlegen – für vergessene Zeiten oder eine
-Fehlerkennung. Geprüft wird dabei im Backend: Ende nach Beginn, Pause kürzer als
-der Eintrag; die Nettozeit rechnet die App selbst. Nur der gerade laufende
-Eintrag ist gesperrt – dafür erst stoppen.
+Entries can be **edited and deleted** in the reports card, and added by hand via
+*Add entry* – for forgotten time or a misrecognition. Validation happens in the
+backend: end after start, break shorter than the entry; the app computes net
+time itself. Only the running entry is locked – stop tracking first.
 
-Die Tabelle zeigt neben Beginn und Ende auch die **Pause** in Minuten – die
-Dauer daneben ist bereits die Nettozeit, sonst wäre der Zusammenhang nicht
-nachvollziehbar. Die Summenzeile addiert beides.
+CSV export (semicolon and decimal comma in German, comma and decimal point in
+English – so Excel opens it without an import wizard) with date, project, start,
+end, duration as `hh:mm:ss` and as decimal hours, break and trigger
+(gesture/manual). The project filter applies to the export as well, so you can
+bill per client.
 
-Vor dem Datum steht eine kleine Farbmarke: normalerweise die Projektfarbe, beim
-laufenden Eintrag **grün**, bei pausierter Erfassung **orange**. Der aktive
-Eintrag pulsiert dabei langsam – laufend in ruhigem Takt, pausiert mit längerer
-Ruhephase. Wer im System „Bewegung reduzieren" eingestellt hat, sieht eine
-ruhige Marke. Der offene
-Eintrag zeigt in der Spalte *Bis* seinen Zustand („läuft" bzw. „pausiert") statt
-einer Uhrzeit.
+## Without gestures
 
-Die Tabelle zeigt zunächst 20 Zeilen; *Weitere anzeigen* bzw. *Alle anzeigen*
-holen den Rest, *Weniger anzeigen* führt zurück zur kurzen Liste. Die Summe unten rechnet immer den **gesamten** Zeitraum, nicht
-nur die sichtbaren Zeilen.
+Everything works by mouse too. **Clicking the menu bar icon** opens a small
+window right below it: running time, start/pause/resume/stop and the project
+list for switching with one click. It closes as soon as it loses focus, like a
+menu. Right-click opens the classic menu.
 
-Über die Auswahl **Alle Projekte** lässt sich die Liste auf ein Projekt
-einschränken – der Filter gilt auch für den Export, damit sich pro Kunde
-abrechnen lässt (der Projektname landet dann im Dateinamen).
+In the macOS menu bar the project name and time run second by second
+(`Client · 01:01:01`, paused with `‖`).
 
-CSV-Export (Semikolon, deutsche Dezimalkommas – Excel-tauglich) über
-*Auswertung → CSV exportieren*, mit Datum, Projekt, Beginn, Ende, Dauer als
-`hh:mm:ss` und als Dezimalstunden, Pausendauer und Auslöser (Geste/manuell).
+## Language
 
-## Technik
+German and English, switched with the **DE|EN toggle** in the window header. The
+choice applies to the interface, to all backend messages (tray menu, errors,
+overlay feedback) **and** to the CSV export format.
 
-| Bereich | Wahl |
+## Install and develop
+
+Requirements: Node ≥ 20, Rust ≥ 1.88, the
+[Tauri prerequisites](https://tauri.app/start/prerequisites/).
+
+```bash
+npm install          # also fetches the model and WASM runtime into public/
+npm run tauri:dev    # development
+npm run tauri:build  # build installers
+npm test             # frontend tests
+npm run test:rust    # backend tests
+```
+
+`npm install` downloads the MediaPipe hand model (~7.5 MB) and the WASM runtime
+into `public/` once. That is the **only** network access in the whole project,
+and it happens at build time, not at runtime. Both end up in the bundle; the
+finished app loads nothing.
+
+## Releases and updates
+
+Native packages for **Windows 11** and **macOS** come from the same code base
+(`npm run tauri:build`, on the target system each). An annotated version tag
+triggers the workflow that builds both and creates a release draft. Details in
+[docs/release.md](docs/release.md).
+
+**Updates** come from GitHub Releases and are only ever checked **on demand**
+(*Settings → Updates*), never in the background. That check is the only network
+access of the finished app, and you trigger it yourself.
+
+## Technology
+
+| Area | Choice |
 |---|---|
-| App-Framework | Tauri 2 (Rust) |
+| App framework | Tauri 2 (Rust) |
 | Frontend | Vue 3 + Pinia + Vite |
-| Gestenerkennung | MediaPipe Hand Landmarker (Tasks Vision, WASM) |
-| Bildquelle | eingebaute Webcam (`getUserMedia`) oder MJPEG-Kamera im WLAN |
-| Klassifikation | eigene geometrische Auswertung der 21 Landmarks |
-| Datenhaltung | SQLite via `rusqlite` |
-| Hotkey / Tray | Tauri Global Shortcut Plugin, Tray Icon API |
+| Recognition | MediaPipe Hand Landmarker (Tasks Vision, WASM) |
+| Classification | own geometric evaluation of the 21 landmarks, plus optional nearest-neighbour training |
+| Camera source | built-in webcam (`getUserMedia`) or MJPEG camera on your Wi-Fi |
+| Storage | SQLite via `rusqlite` |
+| Hotkey / tray | Tauri Global Shortcut plugin, Tray Icon API |
 
-Zustand (läuft/pausiert/gestoppt) liegt vollständig im Rust-Backend – Geste,
-Tray-Menü und Fenster nutzen dieselben Pfade. Details:
-[docs/architektur.md](docs/architektur.md),
-[docs/gesten.md](docs/gesten.md),
-[docs/datenschutz.md](docs/datenschutz.md).
+State (running/paused/stopped) lives entirely in the Rust backend – gesture,
+tray menu and window all take the same paths. Details:
+[architecture](docs/architektur.md), [gestures](docs/gesten.md),
+[privacy](docs/datenschutz.md) (German).
 
-## Sprache
+## Licence
 
-Deutsch und Englisch, umschaltbar über den **DE|EN-Schalter oben rechts im
-Fensterkopf**. Die Wahl gilt
-für die Oberfläche, für alle Meldungen aus dem Backend (Tray-Menü,
-Fehlermeldungen, Rückmeldung im Overlay) **und** für den CSV-Export: deutsch mit
-Semikolon und Dezimalkomma, englisch mit Komma und Dezimalpunkt – so öffnet
-Excel die Datei in beiden Fällen ohne Import-Assistent.
+MIT – see [LICENSE](LICENSE).
 
-Umgesetzt ohne Übersetzungsbibliothek: je ein Wörterbuch im Frontend
-([src/i18n.ts](src/i18n.ts)) und im Backend
-([src-tauri/src/i18n.rs](src-tauri/src/i18n.rs)), beide durch Tests
-abgesichert – gleiche Kennungen in beiden Sprachen, nichts leer, gleiche
-Platzhalter. Fehlt eine Übersetzung, erscheint die Kennung selbst; das fällt
-sofort auf, statt still auf die falsche Sprache zurückzufallen.
-
-## Auslieferung
-
-Native Pakete für **Windows 11** und **macOS** entstehen aus derselben
-Codebasis (`npm run tauri:build`, jeweils auf dem Zielsystem). Ein annotierter Versions-Tag
-(`git tag -a v1.0.0 -m "Version 1.0.0"`) löst den Workflow aus, der beide
-Systeme baut und einen Release-Entwurf anlegt.
-Versionsnummern, Signatur und die je System zu prüfenden Stellen stehen in
-[docs/release.md](docs/release.md). Die laufende Version zeigt die App im
-Fensterkopf.
-
-**Updates** kommen über GitHub Releases und werden **nur auf Knopfdruck**
-gesucht (*Einstellungen → Aktualisierung*) – nie im Hintergrund. Diese Prüfung
-ist der einzige Netzwerkzugriff der fertigen Anwendung, und der Nutzer löst ihn
-selbst aus.
-
-## Anbieterangaben anpassen
-
-Name, Website und Lizenzhinweis im Fensterkopf stehen an einer Stelle:
-[src/branding.ts](src/branding.ts). Das Jahr wächst selbst mit. Der Link öffnet
-den Standardbrowser (Tauri-Opener-Plugin) – das Anwendungsfenster wird nie zum
-Browser.
-
-Symbole sind selbst gezeichnete Inline-SVGs
-([src/components/Icon.vue](src/components/Icon.vue)): keine Icon-Bibliothek,
-keine Icon-Schrift, nichts nachzuladen. Sie erben Farbe und Strichstärke vom
-Text und passen damit automatisch zum hellen und dunklen Erscheinungsbild. Für
-die Gesten selbst bleiben die Emoji-Handzeichen – sie zeigen die Handhaltung
-deutlicher als jedes gezeichnete Symbol.
-
-## Lizenz
-
-MIT – siehe [LICENSE](LICENSE).
+© 2026 Sascha Böhm – Software & APP · [website.industrie-4-0.org](https://website.industrie-4-0.org)
