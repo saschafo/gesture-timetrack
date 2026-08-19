@@ -1,8 +1,12 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Rechte für Hauptfenster und Kamera-Overlay. Bewusst eng gehalten: keine Netzwerk-, Shell- oder allgemeinen Dateisystem-Rechte. Der Opener-Standardsatz erlaubt genau zwei Dinge: den CSV-Export im Dateimanager zeigen und http/https/mailto-Adressen im Standardbrowser öffnen (Website im Fensterkopf).",
-  "windows": ["main", "overlay", "panel"],
+  "description": "Rechte für Hauptfenster und Kamera-Overlay. Bewusst eng gehalten: keine Netzwerk-, Shell- oder allgemeinen Dateisystem-Rechte. Das Prozess-Recht beschränkt sich auf den Neustart nach einem Update. Der Opener-Standardsatz erlaubt genau zwei Dinge: den CSV-Export im Dateimanager zeigen und http/https/mailto-Adressen im Standardbrowser öffnen (Website im Fensterkopf).",
+  "windows": [
+    "main",
+    "overlay",
+    "panel"
+  ],
   "permissions": [
     "core:default",
     "core:window:allow-hide",
@@ -12,6 +16,7 @@
     "opener:default",
     "global-shortcut:default",
     "updater:default",
-    "core:app:default"
+    "core:app:default",
+    "process:allow-restart"
   ]
 }
