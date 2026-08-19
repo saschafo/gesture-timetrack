@@ -54,11 +54,25 @@ jobs:
       - run: npm test
       - run: cargo test --manifest-path src-tauri/Cargo.toml
 
+      # Der Schlüssel ist eine einzige Base64-Zeile. Hängt im Secret ein
+      # Zeilenumbruch oder Leerzeichen daran, steht die Polsterung „==" nicht
+      # mehr am Ende und das Entschlüsseln bricht ab. Deshalb hier einmal
+      # sauber putzen, statt sich auf sauberes Einfügen zu verlassen.
+      - name: Signaturschlüssel aufbereiten
+        shell: bash
+        env:
+          RAW_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          KEY=$(printf '%s' "$RAW_KEY" | tr -d '[:space:]')
+          if [ -z "$KEY" ]; then
+            echo "Secret TAURI_SIGNING_PRIVATE_KEY fehlt." >&2
+            exit 1
+          fi
+          echo "TAURI_SIGNING_PRIVATE_KEY=$KEY" >> "$GITHUB_ENV"
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Signatur der Update-Pakete. Ohne sie lehnt die Anwendung ein Update ab.
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           # Ausdrücklich leer, wenn kein Passwort hinterlegt ist - sonst fragt
           # der Signierer interaktiv nach und der Lauf bleibt hängen.
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD || '' }}
