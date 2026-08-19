@@ -71,7 +71,8 @@
     ],
     "macOS": {
       "minimumSystemVersion": "10.15"
-    }
+    },
+    "createUpdaterArtifacts": true
   },
   "plugins": {
     "updater": {

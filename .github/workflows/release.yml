@@ -33,9 +33,9 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -59,7 +59,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Signatur der Update-Pakete. Ohne sie lehnt die Anwendung ein Update ab.
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # Ausdrücklich leer, wenn kein Passwort hinterlegt ist - sonst fragt
+          # der Signierer interaktiv nach und der Lauf bleibt hängen.
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD || '' }}
           # Signatur und Notarisierung für macOS - ohne diese Werte wird ohne
           # Signatur gebaut, und Gatekeeper warnt beim ersten Start.
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
