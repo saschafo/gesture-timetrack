@@ -53,6 +53,25 @@ Ohne Signatur läuft die App, aber die Systeme warnen deutlich.
 * Für die Kamera braucht macOS zusätzlich den Hinweistext aus
   `src-tauri/Info.plist` – der ist bereits enthalten.
 
+## Apple-Signatur nachrüsten
+
+Der Workflow baut **ohne** Apple-Signatur. Das ist Absicht: Reicht man die
+Variablen leer durch, versucht Tauri ein leeres Zertifikat zu importieren und
+der Bau bricht ab (`failed to import keychain certificate`). Erst wenn eine
+Developer ID vorliegt, gehört dieser Block in `release.yml` unter `env:`:
+
+```yaml
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+```
+
+Alle sechs Secrets müssen dann tatsächlich gefüllt sein - halbe Sachen führen zu
+demselben Abbruch.
+
 ## Auf beiden Systemen prüfen
 
 Der Kern ist plattformunabhängig, drei Stellen verhalten sich aber
@@ -111,7 +130,6 @@ Nutzer soll ihn auslösen, statt ihn hinzunehmen.
    |---|---|
    | `TAURI_SIGNING_PRIVATE_KEY` | Inhalt der privaten Schlüsseldatei |
    | `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` | Passwort, sofern gesetzt |
-   | `APPLE_*` | optional, für Signatur und Notarisierung |
 
 ### Veröffentlichen
 

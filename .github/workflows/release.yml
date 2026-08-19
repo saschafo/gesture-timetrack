@@ -62,14 +62,11 @@ jobs:
           # Ausdrücklich leer, wenn kein Passwort hinterlegt ist - sonst fragt
           # der Signierer interaktiv nach und der Lauf bleibt hängen.
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD || '' }}
-          # Signatur und Notarisierung für macOS - ohne diese Werte wird ohne
-          # Signatur gebaut, und Gatekeeper warnt beim ersten Start.
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # Kein Block für die Apple-Signatur: Eine gesetzte, aber leere Variable
+          # bringt Tauri dazu, ein leeres Zertifikat importieren zu wollen - der
+          # Bau bricht dann mit „failed to import keychain certificate" ab.
+          # Sobald eine Developer ID vorliegt, den Block aus docs/release.md
+          # hier einsetzen.
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'Gesture TimeTrack ${{ github.ref_name }}'
