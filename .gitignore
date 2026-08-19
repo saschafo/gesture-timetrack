@@ -1,0 +1,15 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+
+# Von scripts/fetch-assets.mjs erzeugt (nicht ins Repo, siehe README)
+public/models/
+public/mediapipe/
+
+.DS_Store
+*.log
+
+# Signaturschlüssel gehören niemals ins Repo
+*.key
+*.key.pub

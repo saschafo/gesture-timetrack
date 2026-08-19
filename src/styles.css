@@ -1,0 +1,200 @@
+/* Gemeinsame Basis für Hauptfenster und Overlay. Bewusst schlank: keine
+   externe Schrift, kein CSS-Framework - das Bundle bleibt klein und die App
+   lädt nichts aus dem Netz nach. */
+
+:root {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #f1f2f8;
+  --border: #e2e4ee;
+  --text: #1c1e2b;
+  --muted: #676c85;
+  --accent: #4f46e5;
+  --accent-soft: #eef0ff;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --radius: 12px;
+  /* Gemeinsame Höhe aller Bedienelemente in einer Zeile. Native Auswahlfelder
+     bringen unter macOS eigene Maße mit - ohne festen Wert stehen Eingabefeld,
+     Auswahl und Schaltfläche unterschiedlich hoch. */
+  --control-h: 34px;
+  --shadow: 0 1px 2px rgba(19, 22, 47, 0.06), 0 8px 24px rgba(19, 22, 47, 0.06);
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161f;
+    --surface: #1c1f2b;
+    --surface-2: #232735;
+    --border: #2f3446;
+    --text: #eef0f7;
+    --muted: #9aa1bb;
+    --accent: #8b85ff;
+    --accent-soft: #262a45;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 8px 14px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Alles, was in einer Werkzeugzeile neben Eingabefeldern steht, bekommt dieselbe
+   Höhe. Ausgenommen sind die Sonderfälle: Symbolknöpfe (`ghost`), der
+   Sprachschalter, Kartenköpfe und Listenzeilen - die bringen eigene Maße mit. */
+button:not(.ghost):not(.code):not(.head):not(.row-button) {
+  height: var(--control-h);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+button:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+button.primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+  background: var(--accent);
+}
+
+button.ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+  padding: 4px 8px;
+}
+
+input,
+select {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+
+/* Feste Höhe nur für Felder, die eine Zeile hoch sind - Schieberegler,
+   Kontrollkästchen und Farbwähler haben eigene Maße. */
+input:not([type='range']):not([type='checkbox']):not([type='color']),
+select {
+  height: var(--control-h);
+  padding-top: 0;
+  padding-bottom: 0;
+  box-sizing: border-box;
+}
+
+input[type='color'] {
+  padding: 2px;
+  width: 42px;
+  height: var(--control-h);
+}
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+}
+
+.card h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.card .hint {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spread {
+  justify-content: space-between;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+}
+
+kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+/* --- Fenster in der Menüleiste --- */
+
+.panel-body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--surface);
+  user-select: none;
+}
+
+/* --- Overlay --- */
+
+.overlay-body {
+  margin: 0;
+  overflow: hidden;
+  background: #0d0f16;
+  user-select: none;
+  cursor: default;
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Rechte für Hauptfenster und Kamera-Overlay. Bewusst eng gehalten: keine Netzwerk-, Shell- oder allgemeinen Dateisystem-Rechte. Der Opener-Standardsatz erlaubt genau zwei Dinge: den CSV-Export im Dateimanager zeigen und http/https/mailto-Adressen im Standardbrowser öffnen (Website im Fensterkopf).",
+  "windows": ["main", "overlay", "panel"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-hide",
+    "core:window:allow-show",
+    "core:window:allow-start-dragging",
+    "dialog:allow-save",
+    "opener:default",
+    "global-shortcut:default",
+    "updater:default",
+    "core:app:default"
+  ]
+}

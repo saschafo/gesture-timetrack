@@ -1,0 +1,87 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Gesture TimeTrack",
+  "version": "1.0.0",
+  "identifier": "de.swd.gesture-timetrack",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Gesture TimeTrack",
+        "url": "index.html",
+        "width": 1280,
+        "height": 860,
+        "minWidth": 720,
+        "minHeight": 560,
+        "resizable": true,
+        "center": true
+      },
+      {
+        "label": "panel",
+        "title": "Gesture TimeTrack",
+        "url": "panel.html",
+        "width": 268,
+        "height": 380,
+        "resizable": false,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "shadow": true
+      },
+      {
+        "label": "overlay",
+        "title": "Gestenerkennung",
+        "url": "overlay.html",
+        "width": 220,
+        "height": 250,
+        "resizable": false,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "focus": false,
+        "shadow": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob: mediastream:; connect-src 'self' ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Productivity",
+    "shortDescription": "Zeiterfassung per Handgeste",
+    "longDescription": "Projektzeiten per Handgeste erfassen - Kamerabilder werden ausschließlich lokal verarbeitet und niemals gespeichert oder übertragen.",
+    "copyright": "© 2026 Sascha Böhm – Software & APP, MIT-Lizenz",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "10.15"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/saschafo/gesture-timetrack/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDU2MjJCRkE5RjUzM0Q3OEQKUldTTjF6UDFxYjhpVnR0NlY2TDJ1M0JvdGNxVUorVXpOTktHSTJKTDhHR0dPalB2QzJwT0xLS20K",
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}
