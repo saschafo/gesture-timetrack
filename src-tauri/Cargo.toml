@@ -1,6 +1,6 @@
 [package]
 name = "gesture-timetrack"
-version = "1.0.0"
+version = "1.0.1"
 description = "Zeiterfassung per Handgeste - 100 % offline"
 license = "MIT"
 edition = "2021"

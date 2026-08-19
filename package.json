@@ -1,7 +1,7 @@
 {
   "name": "gesture-timetrack",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "Zeiterfassung per Handgeste - 100 % offline, ohne Hardware-Buzzer",
   "license": "MIT",
