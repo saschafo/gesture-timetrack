@@ -410,6 +410,15 @@ mod tests {
                 let _ = stream.write_all(header.as_bytes());
                 let _ = stream.write_all(&body);
                 let _ = stream.flush();
+
+                // Verbindung ordentlich beenden statt die Steckdose zu ziehen:
+                // Unter Windows verwirft ein sofortiges Schließen die noch nicht
+                // abgeholten Daten, und der Client sieht einen Abbruch statt der
+                // Bilder. Erst das Schreiben abschließen, dann warten, bis die
+                // Gegenseite ihrerseits schließt.
+                let _ = stream.shutdown(std::net::Shutdown::Write);
+                let mut rest = Vec::new();
+                let _ = std::io::Read::read_to_end(&mut stream, &mut rest);
             }
         });
 
@@ -421,8 +430,10 @@ mod tests {
         let camera = NetworkCamera::default();
         camera.start(serve_mjpeg(2), Lang::De);
 
+        // Großzügig warten: Auf einem kalten Bauserver dauern Faden- und
+        // Verbindungsaufbau länger als auf dem Entwicklungsrechner.
         let mut frame = None;
-        for _ in 0..100 {
+        for _ in 0..250 {
             if let Some(data) = camera.frame() {
                 frame = Some(data);
                 break;
@@ -462,7 +473,7 @@ mod tests {
         camera.start("http://127.0.0.1:1/video".to_string(), Lang::De);
 
         let mut error = None;
-        for _ in 0..100 {
+        for _ in 0..250 {
             if let Some(message) = camera.error() {
                 error = Some(message);
                 break;
