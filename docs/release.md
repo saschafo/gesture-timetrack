@@ -131,10 +131,12 @@ Nutzer soll ihn auslösen, statt ihn hinzunehmen.
    | `TAURI_SIGNING_PRIVATE_KEY` | Inhalt der privaten Schlüsseldatei (eine Zeile) |
    | `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` | Passwort, sofern gesetzt |
 
-   Die Schlüsseldatei ist **eine einzige Base64-Zeile ohne Zeilenumbruch**. Hängt
-   beim Einfügen ein Umbruch daran, steht die Polsterung `==` nicht mehr am Ende
-   und das Signieren bricht ab (`failed to decode base64 secret key`). Der
-   Workflow putzt den Wert deshalb selbst; zum Kopieren ohne Umbruch:
+   Die Schlüsseldatei ist **eine einzige Base64-Zeile ohne Zeilenumbruch**. Wird
+   sie aus einem Terminal kopiert, hängt sich leicht ein Fremdzeichen an – zsh
+   zeigt am Ende einer Ausgabe ohne Umbruch ein `%`, das beim Markieren mitgeht.
+   Dann bricht das Signieren ab (`failed to decode base64 secret key`). Der
+   Workflow entfernt deshalb alles, was nicht zum Base64-Alphabet gehört. Zum
+   Kopieren ohne Umweg über die Anzeige:
 
    ```bash
    pbcopy < ~/.tauri/gesture-timetrack.key
