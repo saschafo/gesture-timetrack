@@ -119,6 +119,11 @@ menu. Right-click opens the classic menu.
 In the macOS menu bar the project name and time run second by second
 (`Client · 01:01:01`, paused with `‖`).
 
+Closing the window does **not** quit the app – it keeps running in the tray, or
+the hotkey would be gone. Three ways back to the window: the menu bar icon (the
+arrow button in the small window), the *Open window* menu entry, and clicking
+the Dock icon. To really quit, use *Quit* in the tray menu.
+
 ## Language
 
 German and English, switched with the **DE|EN toggle** in the window header. The

@@ -174,7 +174,10 @@ pub fn run() {
         })
         .on_window_event(|window, event| match event {
             WindowEvent::CloseRequested { api, .. } => {
-                // Die App lebt im Tray weiter, damit der Hotkey erreichbar bleibt.
+                // Die App lebt im Tray weiter, damit der Hotkey erreichbar
+                // bleibt. Zurück ins Fenster führen drei Wege: Klick auf das
+                // Symbol in der Menüleiste, dessen Menüeintrag „Fenster öffnen"
+                // und - siehe unten - das Dock-Symbol.
                 if window.label() == overlay::MAIN_LABEL {
                     api.prevent_close();
                     let _ = window.hide();
@@ -187,6 +190,26 @@ pub fn run() {
             }
             _ => {}
         })
-        .run(tauri::generate_context!())
-        .expect("Anwendung konnte nicht gestartet werden");
+        .build(tauri::generate_context!())
+        .expect("Anwendung konnte nicht gestartet werden")
+        .run(|app, event| {
+            // Klick auf das Symbol im Dock, während kein Fenster sichtbar ist.
+            // Ohne diese Behandlung wirkt die App nach dem Schließen des
+            // Fensters wie verschwunden - sie läuft ja weiter, nur unsichtbar.
+            #[cfg(target_os = "macos")]
+            if let tauri::RunEvent::Reopen {
+                has_visible_windows: false,
+                ..
+            } = event
+            {
+                if let Err(error) = overlay::show_main(app) {
+                    eprintln!("[dock] Hauptfenster: {error}");
+                }
+            }
+
+            #[cfg(not(target_os = "macos"))]
+            {
+                let _ = (app, event);
+            }
+        });
 }

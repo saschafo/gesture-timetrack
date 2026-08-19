@@ -148,7 +148,13 @@ Pfeilsymbol im kleinen Fenster das Hauptfenster.
 
 Alles geht auch per Maus: Hauptfenster für Projekte, Slots, Auswertung und
 Einstellungen; Tray-Menü für Start/Stopp/Pause, Projektwechsel und den
-aktuellen Stand. In der Menüleiste laufen Projektname und Zeit sekundengenau
+aktuellen Stand.
+
+Das Schließen des Fensters beendet die App **nicht** – sie lebt im Tray weiter,
+sonst wäre der Hotkey weg. Zurück ins Fenster führen drei Wege: Klick auf das
+Symbol in der Menüleiste (dort der Pfeil-Knopf), der Menüeintrag *Fenster
+öffnen* und ein Klick auf das Dock-Symbol. Wirklich beenden über *Beenden* im
+Tray-Menü. In der Menüleiste laufen Projektname und Zeit sekundengenau
 mit (`Kunde Meier · 01:01:01`, pausiert mit `‖`); über *Projekt starten* bzw.
 *Projekt wechseln* im Tray-Menü lässt sich jedes aktive Projekt direkt
 auswählen.
